@@ -9,19 +9,40 @@ import com.velocitypowered.proxy.connection.client.InitialInboundConnection;
 import com.velocitypowered.proxy.connection.client.LoginInboundConnection;
 import org.slf4j.Logger;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Plugin(id = "ayunhostnamespoofer", name = "ayunHostnameSpoofer", version = "1.0-SNAPSHOT",
         url = "https://shhnowisnottheti.me", description = "Allows you to spoof the hostname of all connections to servers.", authors = {"ayunami2000"})
 public class Main {
-
     private final String token;
+    // private int port = 0;
 
     @Inject
-    public Main(ProxyServer server, Logger logger) {
-        token = Optional.ofNullable(System.getenv("YEEISH_TOKEN")).orElseThrow(() -> new NoSuchElementException("Please specify YEEISH_TOKEN environment variable!"));
+    public Main(ProxyServer server, Logger logger) throws IOException {
+        Path configFilePath = Path.of("plugins", "ayunHostnameSpoofer", "config.txt");
+
+        File configFileFile = configFilePath.toFile();
+        configFileFile.getParentFile().mkdirs();
+        if (configFileFile.createNewFile()) Files.write(configFilePath, "spoofed.hostname".getBytes()); // :0
+
+        token = Files.readString(configFilePath).trim();
+
+        /*
+        String configFile = Files.readString(configFilePath).trim();
+
+        if (configFile.contains(":")) {
+            String[] configPieces = configFile.split(":");
+
+            token = configPieces[0];
+            port = Integer.parseInt(configPieces[1]);
+        } else {
+            token = configFile;
+        }
+        */
     }
 
     @Subscribe
@@ -40,11 +61,16 @@ public class Main {
 
         // the following does NOT work, for whatever reason:
 
-        // Field handshakeField = initialInboundConnection.getClass().getDeclaredField("handshake");
-        // handshakeField.setAccessible(true);
+        /*
+        Field handshakeField = initialInboundConnection.getClass().getDeclaredField("handshake");
+        handshakeField.setAccessible(true);
 
-        // Handshake handshake = (Handshake) handshakeField.get(initialInboundConnection);
-        // handshake.setPort(0);
+        Handshake handshake = (Handshake) handshakeField.get(initialInboundConnection);
+        handshake.setServerAddress(token);
+        handshake.setPort(port);
+
+        // handshakeField.set(initialInboundConnection, handshake);
+        */
 
         // ez fix: just don't check if the port is 0! :D
     }
