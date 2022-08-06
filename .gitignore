@@ -1,0 +1,6 @@
+.idea
+ayunHostnameSpoofer.iml
+lib
+test
+target/*
+!target/ayunHostnameSpoofer-1.0-SNAPSHOT.jar
